@@ -1,48 +1,94 @@
-package Config
+package config
 
 import (
-	//"fmt"
+	"encoding/json"
+	"fmt"
+	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
+	//"log"
+	"strconv"
 	"strings"
 )
 
-// type Config struct {
-// 	Port         string `mapstructure:"PORT"`
-// 	SecretKey    string `mapstructure:"SECRETKEY"`
-// 	SqlUri       string `mapstructure:"SQL_URI"`
-// 	SqlDb        string `mapstructure:"SQL_DB_NAME"`
-// 	Username     string `mapstructure:"USER_NAME"`
-// 	Email        string `mapstructure:"EMAIL"`
-// 	SmtpHost     string `mapstructure:"SMTP_HOST"`
-// 	SmtpPort     string `mapstructure:"SMTP_PORT"`
-// 	SmtpPassword string `mapstructure:"SMTP_PASSWORD"`
-// 	Link         string `mapstructure:"LINK"`
-// }
+var MapConfig map[string]string
+var MapJson map[string]string
 
-func NewConfig(config_struct Config, filename string) (Config, error) {
+func NewConfig(filename string, filepath string) (map[string]string, error) {
 	viper.AddConfigPath(".")
 	file_info := strings.Split(filename, ".")
 	viper.SetConfigName(file_info[0])
 	viper.SetConfigType(file_info[1])
 	viper.AutomaticEnv()
 
-	if err := viper.ReadInConfig(); err != nil {
-		return config_struct, err
+	if MapConfig == nil {
+		if err := viper.ReadInConfig(); err != nil {
+			return MapConfig, err
+		}
+		err := viper.Unmarshal(&MapConfig)
+		if err != nil {
+			return MapConfig, err
+		}
 	}
 
-	err := viper.Unmarshal(&config_struct)
-	if err != nil {
-		return config_struct, err
-	}
+	viper.OnConfigChange(func(e fsnotify.Event) {
+		fmt.Println("Config file changed:", e.Name)
+		viper.AutomaticEnv()
+		if err := viper.ReadInConfig(); err != nil {
+			fmt.Println("read failed")
+		}
+		err := viper.Unmarshal(&MapConfig)
+		if err != nil {
+			fmt.Println("unmarshal failed")
+		}
+		fmt.Println("config updated")
+	})
+	viper.WatchConfig()
 
-	return config_struct, err
+	return MapConfig, nil
 
 }
 
+func GetKeyLikeString(key string, default_val string) string {
+	value, found := MapConfig[key]
+	if !found {
+		return default_val
+	}
+	return value
+}
+
+func GetKeyLikeInt(key string, default_value int) int {
+	value, found := MapConfig[key]
+	if !found {
+		return default_value
+	}
+	int_val, _ := strconv.Atoi(value)
+	return int_val
+}
+
+func GetKeyLikeJson(key string) map[string]string {
+	value, found := MapConfig[key]
+	if !found {
+		return MapJson
+	}
+	err := json.Unmarshal([]byte(value), &MapJson)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	return MapJson
+}
+
 // func main() {
-// 	config, err := NewConfig(Config{}, "app.env")
+
+// 	config, err := NewConfig("app.env", ".")
 // 	if err != nil {
 // 		fmt.Println(err.Error())
 // 	}
-// 	fmt.Println(config.Port)
+
+// 	val := GetKeyLikeString("port", "1010")
+// 	fmt.Println(val)
+// 	val2 := GetKeyLikeInt("port", 1010)
+// 	fmt.Println(val2)
+// 	val3 := GetKeyLikeJson("email")
+// 	fmt.Print(val3)
+// 	fmt.Println(config)
 // }
