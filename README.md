@@ -51,12 +51,15 @@ _, err := NewConfig("aconfig.json", ".")
   
   lvl 1 :
   {
-  "*":"*"
+  "port":"8080"
   }
   
   lvl 2 :
   {
-  "*":{
-       "*":"*"
+  "port":"8080"
+  "smtp":{
+       "smtp_port":"555",
+       "smtp_user":"abc",
+       "smtp_pass":"eanded98a7c"
       }
   }
