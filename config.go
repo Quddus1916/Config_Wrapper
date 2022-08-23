@@ -51,15 +51,15 @@ func Common(key string, deep_key *string, default_val string) interface{} {
 	value, found := MapConfig[key]
 
 	if !found {
-		return ""
+		return default_val
 	}
-	
+
 	if deep_key == nil {
 		//str := fmt.Sprintf("%v", value)
 		return value
 
 	}
-	
+
 	b, err := json.Marshal(value)
 	if err != nil {
 		panic(err)
@@ -76,12 +76,12 @@ func Common(key string, deep_key *string, default_val string) interface{} {
 }
 
 func GetKeyString(key string, deep_key *string, default_val string) string {
-	p := Common(key, deep_key, default_val)
-	return fmt.Sprintf("%v", p)
+	val := Common(key, deep_key, default_val)
+	return fmt.Sprintf("%v", val)
 }
 
 func GetKeyInt(key string, deep_key *string, default_value string) int {
-	val := GetKeyString(key, deep_key, default_value)
-	int_val, _ := strconv.Atoi(val)
+	val := Common(key, deep_key, default_value)
+	int_val, _ := strconv.Atoi(fmt.Sprintf("%v", val))
 	return int_val
 }
