@@ -62,7 +62,7 @@ Description:Same as GetKeyString and it will return a value as int.
   #Limitation
   
   
-  1.File name must follow the Format (*).(*) example app.json/app.env
+  1.File name must follow the Format-example app.json/app.env
   
   
   
@@ -71,17 +71,17 @@ Description:Same as GetKeyString and it will return a value as int.
   
   example,
   
-  lvl 1 :
-  {
-  "port":"8080"
-  }
+        lvl 1 :
+              {
+              "port":"8080"
+              }
   
-  lvl 2 :
-  {
-  "port":"8080"
-  "smtp":{
-       "smtp_port":"555",
-       "smtp_user":"abc",
-       "smtp_pass":"eanded98a7c"
-      }
-  }
+        lvl 2 :
+              {
+              "port":"8080"
+              "smtp":{
+                       "smtp_port":"555",
+                       "smtp_user":"abc",
+                       "smtp_pass":"eanded98a7c"
+                     }
+               }
