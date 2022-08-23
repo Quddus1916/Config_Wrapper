@@ -69,6 +69,9 @@ Description:Same as GetKeyString and it will return a value as int.
   2.For Json it only supports upto 2nd level nesting
   
   
+  3. Can only save string as a value for each key 
+  
+  
   example,
   
         lvl 1 :
