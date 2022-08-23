@@ -63,14 +63,14 @@ Description:Same as GetKeyString and it will return a value as int.
   #Limitation
   
   
-  1.File name must follow the Format-example app.json/app.env
+ 1.File name must follow the Format-example app.json/app.env
   
   
   
-  2.For Json it only supports upto 2nd level nesting
+ 2.For Json it only supports upto 2nd level nesting
   
   
-  3. Can only save string as a value for each key 
+ 3. Can only save string as a value for each key 
   
   
   example,
