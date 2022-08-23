@@ -82,8 +82,8 @@ Description:Same as GetKeyString and it will return a value as float64.
   
         lvl 1 :
               {
-              "port":"8080"
-	      "smtp_port":"555",
+              "port":"8080",
+	          "smtp_port":"555",
               "smtp_user":"abc",
               "smtp_pass":"eanded98a7c"
               }
