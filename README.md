@@ -11,7 +11,7 @@ go get github.com/Quddus1916/Config_wrapper
 
 #Functions
 
-1.NewConfig (file_with_extention string, filepath string) (map[string]interface{}, error) {}
+1.NewConfig (filepath string) (map[string]interface{}, error) {}
 
 
 
@@ -49,7 +49,7 @@ Description:Same as GetKeyString and it will return a value as int.
 
 
 
-        _, err := NewConfig("config.json", ".")
+        _, err := NewConfig("./config.dev.json")
 
 	if err != nil {
 		fmt.Println(err.Error())
@@ -70,7 +70,6 @@ Description:Same as GetKeyString and it will return a value as int.
  2.For Json it only supports upto 2nd level nesting
   
   
- 3. Can only save string as a value for each key 
   
   
   example,
