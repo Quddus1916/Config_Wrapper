@@ -55,7 +55,8 @@ Description:Same as GetKeyString and it will return a value as int.
 		fmt.Println(err.Error())
 	}
         val := GetKeyInt("port", nil, "1010")
-       val2 := GetKeyString("port", nil, "1010")
+        val2 := GetKeyString("port", nil, "1010")
+        val3 := GetKeyString("app", "limit", "1010")
   
   
   
