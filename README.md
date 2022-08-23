@@ -72,11 +72,8 @@ Description:Same as GetKeyString and it will return a value as float64.
   #Limitation
   
   
- 1.File name must follow the Format-example app.json/app.env
   
-  
-  
- 2.For Json it only supports upto 2nd level nesting
+ 1.For Json it only supports upto 2nd level nesting
   
   
   
