@@ -6,17 +6,14 @@ import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
 	"strconv"
-	"strings"
 )
 
 var MapConfig map[string]interface{}
 var MapJson map[string]interface{}
 
-func NewConfig(filename string, filepath string) (map[string]interface{}, error) {
-	viper.AddConfigPath(filepath)
-	file_info := strings.Split(filename, ".")
-	viper.SetConfigName(file_info[0])
-	viper.SetConfigType(file_info[1])
+func NewConfig(filepath string) (map[string]interface{}, error) {
+
+	viper.SetConfigFile(filepath)
 	viper.AutomaticEnv()
 
 	if MapConfig == nil {
