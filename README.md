@@ -11,7 +11,7 @@ go get github.com/Quddus1916/Config_wrapper
 
 #Functions
 
-1.NewConfig (filepath string) (map[string]interface{}, error) {}
+1.InitConfig (filepath string) (map[string]interface{}, error) {}
 
 
 
@@ -19,7 +19,7 @@ Description: It will create a map from the config file And it will start watchin
 If any changes saved in config file then updates will be
 reflected throughout the program without restart
 
-2.GetKeyString(key string, deep_key *string, default_val string) string {}
+2.GetConfigParamAsString(key string, deep_key *string, default_val string) string {}
 
 
 
@@ -38,25 +38,34 @@ NB: deep_key is only used if you store a json against a key
   
   
 
-3.GetKeyInt(key string, deep_key *string, default_value string) int {}
+3.GetConfigParamAsInt64(key string, deep_key *string, default_value string) int {}
 
 
 
-Description:Same as GetKeyString and it will return a value as int.
+Description:Same as GetKeyString and it will return a value as int64.
+
+
+
+3.GetConfigParamAsFloat64(key string, deep_key *string, default_value string) float64 {}
+
+
+
+Description:Same as GetKeyString and it will return a value as float64.
+
 
 
 #Usage
 
 
 
-        _, err := NewConfig("./config.dev.json")
+        _, err := InitConfig("./config.dev.json")
 
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-        val := GetKeyInt("port", nil, "1010")
-        val2 := GetKeyString("port", nil, "1010")
-        val3 := GetKeyString("app", "limit", "1010")
+        val := GetConfigParamAsInt64("port", nil, "1010")
+        val2 := GetConfigParamAsString("port", nil, "1010")
+        val3 := GetConfigParamAsFloat64("app", "value", "1010.1002")
   
   
   
