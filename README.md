@@ -16,7 +16,7 @@ go get github.com/Quddus1916/Config_wrapper
 
 
 Description: It will create a map from the config file And it will start watching. 
-If any changes saved in config file it will then updates will be
+If any changes saved in config file then updates will be
 reflected throughout the program without restart
 
 2.GetKeyString(key string, deep_key *string, default_val string) string {}
@@ -49,39 +49,43 @@ Description:Same as GetKeyString and it will return a value as int.
 
 
 
-_, err := NewConfig("aconfig.json", ".")
+        _, err := NewConfig("config.json", ".")
+
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-  
-  val := GetKeyInt("port", nil, "1010")
-  val2 := GetKeyString("port", nil, "1010")
+        val := GetKeyInt("port", nil, "1010")
+        val2 := GetKeyString("port", nil, "1010")
+        val3 := GetKeyString("app", "limit", "1010")
   
   
   
   #Limitation
   
   
-  1.File name must follow the Format (*).(*) example app.json/app.env
+ 1.File name must follow the Format-example app.json/app.env
   
   
   
-  2.For Json it only supports upto 2nd level nesting
+ 2.For Json it only supports upto 2nd level nesting
+  
+  
+ 3. Can only save string as a value for each key 
   
   
   example,
   
-  lvl 1 :
-  {
-  "port":"8080"
-  }
+        lvl 1 :
+              {
+              "port":"8080"
+              }
   
-  lvl 2 :
-  {
-  "port":"8080"
-  "smtp":{
-       "smtp_port":"555",
-       "smtp_user":"abc",
-       "smtp_pass":"eanded98a7c"
-      }
-  }
+        lvl 2 :
+              {
+              "port":"8080"
+              "smtp":{
+                       "smtp_port":"555",
+                       "smtp_user":"abc",
+                       "smtp_pass":"eanded98a7c"
+                     }
+               }
