@@ -50,14 +50,16 @@ func NewConfig(filename string, filepath string) (map[string]interface{}, error)
 func Common(key string, deep_key *string, default_val string) interface{} {
 	value, found := MapConfig[key]
 
+	if !found {
+		return ""
+	}
+	
 	if deep_key == nil {
 		//str := fmt.Sprintf("%v", value)
 		return value
 
 	}
-	if !found {
-		return ""
-	}
+	
 	b, err := json.Marshal(value)
 	if err != nil {
 		panic(err)
