@@ -49,7 +49,7 @@ Description:Same as GetKeyString and it will return a value as int.
 
 
 
-        _, err := NewConfig("aconfig.json", ".")
+        _, err := NewConfig("config.json", ".")
 
 	if err != nil {
 		fmt.Println(err.Error())
