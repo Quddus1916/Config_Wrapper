@@ -1,4 +1,4 @@
-package config
+package main
 
 import (
 	"encoding/json"
@@ -8,10 +8,12 @@ import (
 	"strconv"
 )
 
+const bitSize = 64 // Don't think about it to much. It's just 64 bits.
+
 var MapConfig map[string]interface{}
 var MapJson map[string]interface{}
 
-func NewConfig(filepath string) (map[string]interface{}, error) {
+func InitConfig(filepath string) (map[string]interface{}, error) {
 
 	viper.SetConfigFile(filepath)
 	viper.AutomaticEnv()
@@ -72,13 +74,42 @@ func Common(key string, deep_key *string, default_val string) interface{} {
 	return deep_value
 }
 
-func GetKeyString(key string, deep_key *string, default_val string) string {
+func GetConfigParamAsString(key string, deep_key *string, default_val string) string {
 	val := Common(key, deep_key, default_val)
 	return fmt.Sprintf("%v", val)
 }
 
-func GetKeyInt(key string, deep_key *string, default_value string) int {
+func GetConfigParamAsInt64(key string, deep_key *string, default_value string) int64 {
 	val := Common(key, deep_key, default_value)
-	int_val, _ := strconv.Atoi(fmt.Sprintf("%v", val))
-	return int_val
+	Num, err := strconv.ParseInt(fmt.Sprintf("%v", val), 10, bitSize)
+	if err != nil {
+		fmt.Println("error:", err)
+	}
+	return Num
+}
+
+func GetConfigParamAsFloat64(key string, deep_key *string, default_value string) float64 {
+	val := Common(key, deep_key, default_value)
+	Num, err := strconv.ParseFloat(fmt.Sprintf("%v", val), bitSize)
+	if err != nil {
+		fmt.Println("error:", err)
+	}
+	return Num
+}
+
+func main() {
+	_, err := InitConfig("./config.dev.json")
+
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	val := GetConfigParamAsInt64("port", nil, "1010")
+	fmt.Println(val)
+	limit := "limit"
+	port := "port"
+	val2 := GetConfigParamAsInt64("app", &port, "1010")
+	fmt.Println(val2)
+	val3 := GetConfigParamAsFloat64("app", &limit, "1010")
+	fmt.Println(val3)
+
 }
