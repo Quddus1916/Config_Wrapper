@@ -1,4 +1,4 @@
-package main
+package config
 
 import (
 	"encoding/json"
@@ -95,21 +95,4 @@ func GetConfigParamAsFloat64(key string, deep_key *string, default_value string)
 		fmt.Println("error:", err)
 	}
 	return Num
-}
-
-func main() {
-	_, err := InitConfig("./config.dev.json")
-
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-	val := GetConfigParamAsInt64("port", nil, "1010")
-	fmt.Println(val)
-	limit := "limit"
-	port := "port"
-	val2 := GetConfigParamAsInt64("app", &port, "1010")
-	fmt.Println(val2)
-	val3 := GetConfigParamAsFloat64("app", &limit, "1010")
-	fmt.Println(val3)
-
 }
