@@ -16,7 +16,7 @@ go get github.com/Quddus1916/Config_wrapper
 
 
 Description: It will create a map from the config file And it will start watching. 
-If any changes saved in config file it will then updates will be
+If any changes saved in config file then updates will be
 reflected throughout the program without restart
 
 2.GetKeyString(key string, deep_key *string, default_val string) string {}
