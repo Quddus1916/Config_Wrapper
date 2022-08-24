@@ -8,43 +8,19 @@ import (
 	"strconv"
 )
 
+type GetConfigParamAsString func(string, *string, string) string
+type GetConfigParamAsInt64 func(string, *string, string) int64
+type GetConfigParamAsFloat64 func(string, *string, string) float64
+type Config struct {
+	GetConfigParamAsString  GetConfigParamAsString
+	GetConfigParamAsInt64   GetConfigParamAsInt64
+	GetConfigParamAsFloat64 GetConfigParamAsFloat64
+}
+
 const bitSize = 64 // Don't think about it to much. It's just 64 bits.
 
 var MapConfig map[string]interface{}
 var MapJson map[string]interface{}
-
-func InitConfig(filepath string) (map[string]interface{}, error) {
-
-	viper.SetConfigFile(filepath)
-	viper.AutomaticEnv()
-
-	if MapConfig == nil {
-		if err := viper.ReadInConfig(); err != nil {
-			return MapConfig, err
-		}
-		err := viper.Unmarshal(&MapConfig)
-		if err != nil {
-			return MapConfig, err
-		}
-	}
-
-	viper.OnConfigChange(func(e fsnotify.Event) {
-		fmt.Println("Config file changed:", e.Name)
-		viper.AutomaticEnv()
-		if err := viper.ReadInConfig(); err != nil {
-			fmt.Println("read failed")
-		}
-		err := viper.Unmarshal(&MapConfig)
-		if err != nil {
-			fmt.Println("unmarshal failed")
-		}
-		fmt.Println("config updated")
-	})
-	viper.WatchConfig()
-
-	return MapConfig, nil
-
-}
 
 func Common(key string, deep_key *string, default_val string) interface{} {
 	value, found := MapConfig[key]
@@ -74,25 +50,59 @@ func Common(key string, deep_key *string, default_val string) interface{} {
 	return deep_value
 }
 
-func GetConfigParamAsString(key string, deep_key *string, default_val string) string {
-	val := Common(key, deep_key, default_val)
-	return fmt.Sprintf("%v", val)
-}
+func InitConfig(filepath string) (*Config, error) {
+	var config = new(Config)
+	viper.SetConfigFile(filepath)
+	viper.AutomaticEnv()
 
-func GetConfigParamAsInt64(key string, deep_key *string, default_value string) int64 {
-	val := Common(key, deep_key, default_value)
-	Num, err := strconv.ParseInt(fmt.Sprintf("%v", val), 10, bitSize)
-	if err != nil {
-		fmt.Println("error:", err)
+	if MapConfig == nil {
+		if err := viper.ReadInConfig(); err != nil {
+			return config, err
+		}
+		err := viper.Unmarshal(&MapConfig)
+		if err != nil {
+			return config, err
+		}
 	}
-	return Num
-}
 
-func GetConfigParamAsFloat64(key string, deep_key *string, default_value string) float64 {
-	val := Common(key, deep_key, default_value)
-	Num, err := strconv.ParseFloat(fmt.Sprintf("%v", val), bitSize)
-	if err != nil {
-		fmt.Println("error:", err)
+	viper.OnConfigChange(func(e fsnotify.Event) {
+		fmt.Println("Config file changed:", e.Name)
+		viper.AutomaticEnv()
+		if err := viper.ReadInConfig(); err != nil {
+			fmt.Println("read failed")
+		}
+		err := viper.Unmarshal(&MapConfig)
+		if err != nil {
+			fmt.Println("unmarshal failed")
+		}
+		fmt.Println("config updated")
+	})
+	viper.WatchConfig()
+
+	config = &Config{
+
+		GetConfigParamAsString: func(key string, deep_key *string, default_val string) string {
+			val := Common(key, deep_key, default_val)
+			return fmt.Sprintf("%v", val)
+		},
+		GetConfigParamAsInt64: func(key string, deep_key *string, default_val string) int64 {
+			val := Common(key, deep_key, default_val)
+			Num, err := strconv.ParseInt(fmt.Sprintf("%v", val), 10, bitSize)
+			if err != nil {
+				fmt.Println("error:", err)
+			}
+			return Num
+		},
+		GetConfigParamAsFloat64: func(key string, deep_key *string, default_val string) float64 {
+			val := Common(key, deep_key, default_val)
+			Num, err := strconv.ParseFloat(fmt.Sprintf("%v", val), bitSize)
+			if err != nil {
+				fmt.Println("error:", err)
+			}
+			return Num
+		},
 	}
-	return Num
+
+	return config, nil
+
 }
