@@ -11,7 +11,7 @@ go get github.com/Quddus1916/Config_wrapper
 
 #Functions
 
-1.NewConfig (filepath string) (map[string]interface{}, error) {}
+1.InitConfig (filepath string) (config, error) {}
 
 
 
@@ -19,7 +19,7 @@ Description: It will create a map from the config file And it will start watchin
 If any changes saved in config file then updates will be
 reflected throughout the program without restart
 
-2.GetKeyString(key string, deep_key *string, default_val string) string {}
+2.GetConfigParamAsString(key string, deep_key *string, default_val string) string {}
 
 
 
@@ -38,36 +38,43 @@ NB: deep_key is only used if you store a json against a key
   
   
 
-3.GetKeyInt(key string, deep_key *string, default_value string) int {}
+3.GetConfigParamAsInt64(key string, deep_key *string, default_value string) int {}
 
 
 
-Description:Same as GetKeyString and it will return a value as int.
+Description:Same as GetKeyString and it will return a value as int64.
+
+
+
+3.GetConfigParamAsFloat64(key string, deep_key *string, default_value string) float64 {}
+
+
+
+Description:Same as GetKeyString and it will return a value as float64.
+
 
 
 #Usage
 
 
 
-        _, err := NewConfig("./config.dev.json")
+       config, err := InitConfig("./config.dev.json")
 
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-        val := GetKeyInt("port", nil, "1010")
-        val2 := GetKeyString("port", nil, "1010")
-        val3 := GetKeyString("app", "limit", "1010")
+	p := "limit"
+	val := config.GetConfigParamAsString("app", &p, "1010")
+	val2 := config.GetConfigParamAsInt64("app", &p, "1010")
+	val3 := config.GetConfigParamAsFloat64("port", nil, "1010")
   
   
   
   #Limitation
   
   
- 1.File name must follow the Format-example app.json/app.env
   
-  
-  
- 2.For Json it only supports upto 2nd level nesting
+ 1.For Json it only supports upto 2nd level nesting
   
   
   
@@ -76,7 +83,10 @@ Description:Same as GetKeyString and it will return a value as int.
   
         lvl 1 :
               {
-              "port":"8080"
+              "port":"8080",
+	          "smtp_port":"555",
+              "smtp_user":"abc",
+              "smtp_pass":"eanded98a7c"
               }
   
         lvl 2 :
