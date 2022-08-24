@@ -38,7 +38,7 @@ NB: deep_key is only used if you store a json against a key
   
   
 
-3.GetConfigParamAsInt64(key string, deep_key *string, default_value string) int {}
+3.GetConfigParamAsInt64(key string, deep_key *string, default_value string) int64 {}
 
 
 
