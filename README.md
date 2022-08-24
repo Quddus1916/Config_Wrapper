@@ -11,7 +11,7 @@ go get github.com/Quddus1916/Config_wrapper
 
 #Functions
 
-1.InitConfig (filepath string) (map[string]interface{}, error) {}
+1.InitConfig (filepath string) (config, error) {}
 
 
 
@@ -58,14 +58,15 @@ Description:Same as GetKeyString and it will return a value as float64.
 
 
 
-        _, err := InitConfig("./config.dev.json")
+       config, err := InitConfig("./config.dev.json")
 
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-        val := GetConfigParamAsInt64("port", nil, "1010")
-        val2 := GetConfigParamAsString("port", nil, "1010")
-        val3 := GetConfigParamAsFloat64("app", "value", "1010.1002")
+	p := "limit"
+	val := config.GetConfigParamAsString("app", &p, "1010")
+	val2 := config.GetConfigParamAsInt64("app", &p, "1010")
+	val3 := config.GetConfigParamAsFloat64("port", nil, "1010")
   
   
   
