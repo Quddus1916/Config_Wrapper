@@ -6,7 +6,11 @@ go get github.com/Quddus1916/Config_wrapper
 
 #Functionalities 
 1.Incorporate run time changes without restart
-2.Get a value (string/int type) against a particular key
+
+
+2.Get a value (string/int/float type) against a particular key
+
+
 3.Set default value if key not present
 
 #Functions
