@@ -9,13 +9,6 @@ import (
 	"strconv"
 )
 
-type KeyFunc struct {
-	Key          string
-	CallBackFunc func()
-}
-
-var Pair []KeyFunc
-
 type GetConfigParamAsString func(string, *string, string) string
 type GetConfigParamAsInt64 func(string, *string, string) int64
 type GetConfigParamAsFloat64 func(string, *string, string) float64
@@ -24,23 +17,25 @@ type Config struct {
 	GetConfigParamAsInt64   GetConfigParamAsInt64
 	GetConfigParamAsFloat64 GetConfigParamAsFloat64
 }
+type KeyFunc struct {
+	Key          string
+	CallBackFunc func()
+}
+
+var Pair []KeyFunc
 
 const bitSize = 64 // Don't think about it to much. It's just 64 bits.
-
 var MapConfig map[string]interface{}
 var MapJson map[string]interface{}
 
 func Common(key string, deep_key *string, default_val string) interface{} {
-	value, found := MapConfig[key]
 
+	value, found := MapConfig[key]
 	if !found {
 		return default_val
 	}
-
 	if deep_key == nil {
-		//str := fmt.Sprintf("%v", value)
 		return value
-
 	}
 
 	b, err := json.Marshal(value)
@@ -51,10 +46,12 @@ func Common(key string, deep_key *string, default_val string) interface{} {
 	if err != nil {
 		fmt.Println("error:", err)
 	}
+
 	deep_value, found := MapJson[*deep_key]
 	if !found {
 		return default_val
 	}
+
 	return deep_value
 }
 
@@ -81,7 +78,10 @@ func CallFuncIfExists(key string) bool {
 }
 
 func InitConfig(filepath string, pair []KeyFunc) (*Config, error) {
+
+	Pair = pair
 	var config = new(Config)
+
 	viper.SetConfigFile(filepath)
 	viper.AutomaticEnv()
 
@@ -94,11 +94,11 @@ func InitConfig(filepath string, pair []KeyFunc) (*Config, error) {
 			return config, err
 		}
 	}
-	Pair = pair
 
 	viper.OnConfigChange(func(e fsnotify.Event) {
-		fmt.Println("Config file changed:", e.Name)
+
 		var OldConfig = make(map[string]interface{})
+		fmt.Println("Config file changed:", e.Name)
 
 		b, err := json.Marshal(MapConfig)
 		if err != nil {
@@ -110,19 +110,26 @@ func InitConfig(filepath string, pair []KeyFunc) (*Config, error) {
 		}
 
 		viper.AutomaticEnv()
+
 		if err := viper.ReadInConfig(); err != nil {
 			fmt.Println("read failed")
 		}
+
 		err = viper.Unmarshal(&MapConfig)
 		if err != nil {
 			fmt.Println("unmarshal failed")
 		}
+
 		fmt.Println("config updated & Checking for any call_back func")
+
 		key := MisMatchedKey(OldConfig, MapConfig)
-		ok := CallFuncIfExists(key)
-		if ok {
-			fmt.Println("ok")
+		if key != "" {
+			ok := CallFuncIfExists(key)
+			if ok {
+				fmt.Println("ok")
+			}
 		}
+
 	})
 	viper.WatchConfig()
 
