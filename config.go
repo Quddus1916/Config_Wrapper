@@ -5,8 +5,16 @@ import (
 	"fmt"
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
+	"reflect"
 	"strconv"
 )
+
+type KeyFunc struct {
+	Key          string
+	CallBackFunc func()
+}
+
+var Pair []KeyFunc
 
 type GetConfigParamAsString func(string, *string, string) string
 type GetConfigParamAsInt64 func(string, *string, string) int64
@@ -50,7 +58,29 @@ func Common(key string, deep_key *string, default_val string) interface{} {
 	return deep_value
 }
 
-func InitConfig(filepath string) (*Config, error) {
+func MisMatchedKey(old map[string]interface{}, updated map[string]interface{}) string {
+	for k, _ := range old {
+		eq := reflect.DeepEqual(old[k], updated[k])
+		if eq {
+
+		} else {
+			return k
+		}
+	}
+	return ""
+}
+
+func CallFuncIfExists(key string) bool {
+	for _, v := range Pair {
+		if v.Key == key {
+			v.CallBackFunc()
+			return true
+		}
+	}
+	return false
+}
+
+func InitConfig(filepath string, pair []KeyFunc) (*Config, error) {
 	var config = new(Config)
 	viper.SetConfigFile(filepath)
 	viper.AutomaticEnv()
@@ -64,18 +94,35 @@ func InitConfig(filepath string) (*Config, error) {
 			return config, err
 		}
 	}
+	Pair = pair
 
 	viper.OnConfigChange(func(e fsnotify.Event) {
 		fmt.Println("Config file changed:", e.Name)
+		var OldConfig = make(map[string]interface{})
+
+		b, err := json.Marshal(MapConfig)
+		if err != nil {
+			panic(err)
+		}
+		err = json.Unmarshal(b, &OldConfig)
+		if err != nil {
+			fmt.Println("error:", err)
+		}
+
 		viper.AutomaticEnv()
 		if err := viper.ReadInConfig(); err != nil {
 			fmt.Println("read failed")
 		}
-		err := viper.Unmarshal(&MapConfig)
+		err = viper.Unmarshal(&MapConfig)
 		if err != nil {
 			fmt.Println("unmarshal failed")
 		}
-		fmt.Println("config updated")
+		fmt.Println("config updated & Checking for any call_back func")
+		key := MisMatchedKey(OldConfig, MapConfig)
+		ok := CallFuncIfExists(key)
+		if ok {
+			fmt.Println("ok")
+		}
 	})
 	viper.WatchConfig()
 
@@ -90,6 +137,11 @@ func InitConfig(filepath string) (*Config, error) {
 			Num, err := strconv.ParseInt(fmt.Sprintf("%v", val), 10, bitSize)
 			if err != nil {
 				fmt.Println("error:", err)
+				Num, err := strconv.ParseInt(default_val, 10, bitSize)
+				if err != nil {
+					fmt.Println("error:", err)
+				}
+				return Num
 			}
 			return Num
 		},
@@ -98,6 +150,11 @@ func InitConfig(filepath string) (*Config, error) {
 			Num, err := strconv.ParseFloat(fmt.Sprintf("%v", val), bitSize)
 			if err != nil {
 				fmt.Println("error:", err)
+				Num, err := strconv.ParseFloat(default_val, bitSize)
+				if err != nil {
+					fmt.Println("error:", err)
+				}
+				return Num
 			}
 			return Num
 		},
