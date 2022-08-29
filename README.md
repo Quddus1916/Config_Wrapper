@@ -1,12 +1,20 @@
 # Config_wrapper
 wrap config
+
+
 #To import
 
 go get github.com/Quddus1916/Config_wrapper
 
 #Functionalities 
+
+
 1.Incorporate run time changes without restart
-2.Get a value (string/int type) against a particular key
+
+
+2.Get a value (string/int/float type) against a particular key
+
+
 3.Set default value if key not present
 
 #Functions
@@ -38,7 +46,7 @@ NB: deep_key is only used if you store a json against a key
   
   
 
-3.GetConfigParamAsInt64(key string, deep_key *string, default_value string) int {}
+3.GetConfigParamAsInt64(key string, deep_key *string, default_value string) int64 {}
 
 
 
