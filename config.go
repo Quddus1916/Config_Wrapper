@@ -1,15 +1,14 @@
-package main
+package config
 
 import (
 	"encoding/json"
 	"fmt"
 	"github.com/fsnotify/fsnotify"
-	"github.com/labstack/echo/v4"
+	//"github.com/labstack/echo/v4"
 	"github.com/spf13/viper"
 	"os"
 	"path/filepath"
 	"reflect"
-	//"regexp"
 	"strconv"
 	"sync"
 )
@@ -22,10 +21,29 @@ var Count_config_file []string
 type GetConfigParamAsString func(string, *string, string) string
 type GetConfigParamAsInt64 func(string, *string, string) int64
 type GetConfigParamAsFloat64 func(string, *string, string) float64
+
+type GetConfigParamAsGeneric func(string, *string, any) any
+
+func Abc[T any](key string, deep_key *string, obj T) T {
+
+	val := Common(key, deep_key, "default")
+	fmt.Println(val)
+	b, err := json.Marshal(val)
+	if err != nil {
+		panic(err)
+	}
+	err = json.Unmarshal(b, &obj)
+	if err != nil {
+		fmt.Println("error:", err)
+	}
+	return obj
+}
+
 type Config struct {
 	GetConfigParamAsString  GetConfigParamAsString
 	GetConfigParamAsInt64   GetConfigParamAsInt64
 	GetConfigParamAsFloat64 GetConfigParamAsFloat64
+	GetConfigParamAsGeneric GetConfigParamAsGeneric
 }
 type KeyFunc struct {
 	Key          string
@@ -93,37 +111,6 @@ func MisMatchedKey(old map[string]interface{}, updated map[string]interface{}) [
 	return keys
 }
 
-// func VisitFile(path string, info os.FileInfo, err error) error {
-
-// 	if err != nil {
-
-// 		fmt.Println(err)
-// 		return nil
-// 	}
-
-// 	if info.IsDir() || filepath.Ext(path) != File_Extension {
-
-// 		return nil
-// 	}
-
-// 	reg, err2 := regexp.Compile(ConfigFile)
-
-// 	if err2 != nil {
-
-// 		return err2
-// 	}
-
-// 	if reg.MatchString(info.Name()) {
-// 		Count_config_file = append(Count_config_file, path)
-// 		if len(Count_config_file) != 1 {
-// 			panic("to many config files with same name")
-// 		}
-// 	}
-//
-
-// 	return nil
-// }
-
 func CallFuncIfExists(key []string) bool {
 	fmt.Println(key)
 	for _, K := range key {
@@ -139,14 +126,8 @@ func CallFuncIfExists(key []string) bool {
 
 func InitConfig(file_path string, pair []KeyFunc) (*Config, error) {
 
-	//ConfigFile = file_name_with_extension
-	// File_Extension = filepath.Ext(file_name_with_extension)
-	// err := filepath.Walk(".", VisitFile)
-
-	// if err != nil {
-
-	// }
 	_, err := os.Open(file_path)
+
 	if err == nil {
 		viper.SetConfigFile(file_path)
 	} else {
@@ -238,38 +219,24 @@ func InitConfig(file_path string, pair []KeyFunc) (*Config, error) {
 			}
 			return Num
 		},
+		GetConfigParamAsGeneric: func(key string, deep_key *string, obj any) any {
+			var valu any
+			valu = obj
+			fmt.Println(reflect.TypeOf(valu))
+			val := Common("app", nil, "default")
+			//fmt.Println(val)
+			b, err := json.Marshal(val)
+			if err != nil {
+				panic(err)
+			}
+			err = json.Unmarshal(b, &obj)
+			if err != nil {
+				fmt.Println("error:", err)
+			}
+			return obj
+		},
 	}
 
 	return config, nil
 
-}
-
-func Prints1() {
-	fmt.Println("db updated")
-}
-func Prints2() {
-	fmt.Println("app updated")
-}
-func Prints3() {
-	fmt.Println("key updated")
-}
-func main() {
-	e := echo.New()
-	var pair []KeyFunc
-	pair = []KeyFunc{
-		{Key: "db", CallBackFunc: Prints1},
-		{Key: "app", CallBackFunc: Prints2},
-		{Key: "v", CallBackFunc: Prints3},
-	}
-	config, err := InitConfig("./g/e/config.dev.json", pair)
-
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-	p := "port"
-	// val := config.GetConfigParamAsString("app", nil, "1010")
-	// fmt.Println(val)
-	val2 := config.GetConfigParamAsInt64("app", &p, "1010")
-	fmt.Println(val2)
-	e.Start(":8080")
 }
