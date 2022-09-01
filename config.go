@@ -9,53 +9,39 @@ import (
 	"path/filepath"
 	"reflect"
 	"strconv"
-	"sync"
 )
 
-var m sync.Mutex
-var ConfigFile string
-var File_Extension string
-var Count_config_file []string
-
-type GetConfigParamAsString func(string, *string, string) string
-type GetConfigParamAsInt64 func(string, *string, string) int64
-type GetConfigParamAsFloat64 func(string, *string, string) float64
-
-type GetConfigParamAsGeneric func(string, *string, any) any
-
-func Abc[T any](key string, deep_key *string, obj T) T {
-
-	val := Common(key, deep_key, "default")
-	fmt.Println(val)
-	b, err := json.Marshal(val)
-	if err != nil {
-		panic(err)
-	}
-	err = json.Unmarshal(b, &obj)
-	if err != nil {
-		fmt.Println("error:", err)
-	}
-	return obj
-}
+type getConfigParamAsString func(string, *string, string) string
+type getConfigParamAsInt64 func(string, *string, string) int64
+type getConfigParamAsFloat64 func(string, *string, string) float64
 
 type Config struct {
-	GetConfigParamAsString  GetConfigParamAsString
-	GetConfigParamAsInt64   GetConfigParamAsInt64
-	GetConfigParamAsFloat64 GetConfigParamAsFloat64
-	GetConfigParamAsGeneric GetConfigParamAsGeneric
+	GetConfigParamAsString  getConfigParamAsString
+	GetConfigParamAsInt64   getConfigParamAsInt64
+	GetConfigParamAsFloat64 getConfigParamAsFloat64
 }
+
+var config *Config
+
 type KeyFunc struct {
 	Key          string
 	CallBackFunc func()
 }
 
 var Pair []KeyFunc
+var in_it bool
 
 const bitSize = 64 // Don't think about it to much. It's just 64 bits.
 var MapConfig map[string]interface{}
 var MapJson map[string]interface{}
 var OldConfig = make(map[string]interface{})
 
+func GetConfig() *Config {
+	if config == nil || MapConfig == nil || in_it == false {
+		fmt.Println("plz.. initialize config first")
+	}
+	return config
+}
 func Decode(value interface{}) {
 	b, err := json.Marshal(value)
 	if err != nil {
@@ -123,8 +109,12 @@ func CallFuncIfExists(key []string) bool {
 	return true
 }
 
-func InitConfig(file_path string, pair []KeyFunc) (*Config, error) {
-
+func InitConfig(file_path string, pair []KeyFunc) error {
+	if in_it == true {
+		fmt.Println("already initialized")
+		return nil
+	}
+	in_it = true
 	_, err := os.Open(file_path)
 
 	if err == nil {
@@ -136,16 +126,15 @@ func InitConfig(file_path string, pair []KeyFunc) (*Config, error) {
 	}
 
 	Pair = pair
-	var config = new(Config)
 	viper.AutomaticEnv()
 
 	if MapConfig == nil {
 		if err := viper.ReadInConfig(); err != nil {
-			return config, err
+			return err
 		}
 		err := viper.Unmarshal(&MapConfig)
 		if err != nil {
-			return config, err
+			return err
 		}
 	}
 
@@ -218,24 +207,8 @@ func InitConfig(file_path string, pair []KeyFunc) (*Config, error) {
 			}
 			return Num
 		},
-		GetConfigParamAsGeneric: func(key string, deep_key *string, obj any) any {
-			var valu any
-			valu = obj
-			fmt.Println(reflect.TypeOf(valu))
-			val := Common("app", nil, "default")
-			//fmt.Println(val)
-			b, err := json.Marshal(val)
-			if err != nil {
-				panic(err)
-			}
-			err = json.Unmarshal(b, &obj)
-			if err != nil {
-				fmt.Println("error:", err)
-			}
-			return obj
-		},
 	}
 
-	return config, nil
+	return nil
 
 }
