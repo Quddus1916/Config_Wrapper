@@ -15,7 +15,10 @@ go get github.com/Quddus1916/Config_wrapper
 2.Get a value (string/int/float type) against a particular key
 
 
-3.Set default value if key not present
+3.Populate a struct from the config file
+
+
+4.Set default value if key not present
 
 #Functions
 
@@ -61,28 +64,68 @@ Description:Same as GetKeyString and it will return a value as int64.
 Description:Same as GetKeyString and it will return a value as float64.
 
 
-
-#Usage
-
+4. GetParamAsStruct("app", nil, "10110", &conf)
 
 
-       config, err := InitConfig("./config.dev.json")
 
-	if err != nil {
-		fmt.Println(err.Error())
+Description: it will map the values from config file to a particular struct
+
+      
+      
+      
+                        type C struct {
+	                      Name  string `mapstructure:"name"`
+	                      Port  int64  `mapstructure:"port"`
+	                      Page  int64  `mapstructure:"page"`
+	                      Limit int64  `mapstructure:"limit"`
+                                      }
+				      
+				      func main() {
+				      var conf = new(C)
+				      err := InitConfig("./config.dev.json", pair)
+				      GetConfig().GetParamAsStruct("app", nil, "10110", &conf)
+				      fmt.Println(conf.Limit)
+				      }
+
+
+
+#Usage for .env nad .json file:=
+
+
+
+        func Prints1() {
+	fmt.Println("db updated")
+                      }
+        var pair []KeyFunc
+	pair = []KeyFunc{
+		{Key: "db", CallBackFunc: Prints1},
 	}
+	err := InitConfig("./config.dev.json", pair)
 	p := "limit"
-	val := config.GetConfigParamAsString("app", &p, "1010")
-	val2 := config.GetConfigParamAsInt64("app", &p, "1010")
-	val3 := config.GetConfigParamAsFloat64("port", nil, "1010")
+	val := Getconfig().GetConfigParamAsString("app", &p, "1010")
+	val2 := Getconfig().GetConfigParamAsInt64("app", &p, "1010")
+	val3 := Getconfig().GetConfigParamAsFloat64("port", nil, "1010")
+	GetConfig().GetParamAsStruct("app", nil, "10110", &conf)
   
   
+ 
   
   #Limitation
   
   
   
  1.For Json it only supports upto 2nd level nesting
+ 
+ 
+ 
+ 2.Callback functions only work for parent keys like for example 1 all and for example 2 port and smtp
+ 
+ 
+ 
+ 3.Only supports .env and .json
+ 
+ 
+ 4.GetParamAsStruct doesn't work for .env file only works for nested json like example lvl 2
   
   
   
