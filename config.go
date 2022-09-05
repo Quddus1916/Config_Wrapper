@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/fsnotify/fsnotify"
+	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
 	"os"
 	"path/filepath"
@@ -14,11 +15,13 @@ import (
 type getConfigParamAsString func(string, *string, string) string
 type getConfigParamAsInt64 func(string, *string, string) int64
 type getConfigParamAsFloat64 func(string, *string, string) float64
+type getParamAsStruct func(string, *string, string, any)
 
 type Config struct {
 	GetConfigParamAsString  getConfigParamAsString
 	GetConfigParamAsInt64   getConfigParamAsInt64
 	GetConfigParamAsFloat64 getConfigParamAsFloat64
+	GetParamAsStruct        getParamAsStruct
 }
 
 var config *Config
@@ -42,6 +45,7 @@ func GetConfig() *Config {
 	}
 	return config
 }
+
 func Decode(value interface{}) {
 	b, err := json.Marshal(value)
 	if err != nil {
@@ -64,6 +68,7 @@ func Common(key string, deep_key *string, default_val string) interface{} {
 		return old_value
 	}
 	if deep_key == nil {
+		fmt.Println(&value)
 		return value
 	}
 
@@ -206,6 +211,12 @@ func InitConfig(file_path string, pair []KeyFunc) error {
 				return Num
 			}
 			return Num
+		},
+		GetParamAsStruct: func(key string, deep_key *string, default_val string, a any) {
+			val := Common(key, deep_key, default_val)
+			mapstructure.Decode(val, &a)
+			fmt.Println(a)
+			return
 		},
 	}
 
