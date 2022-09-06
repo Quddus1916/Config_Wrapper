@@ -63,6 +63,7 @@ func Common(key string, deep_key *string, default_val string) interface{} {
 	if !found {
 		old_value, found = OldConfig[key]
 		if !found {
+			fmt.Println("key not found setting default")
 			return default_val
 		}
 		return old_value
@@ -79,7 +80,7 @@ func Common(key string, deep_key *string, default_val string) interface{} {
 		Decode(old_value)
 		deep_value_old, found := MapJson[*deep_key]
 		if !found {
-
+			fmt.Println("deep_key not found setting default")
 			return default_val
 		}
 		return deep_value_old
